@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "RNBluetoothManager.h"
 #import <CoreBluetooth/CoreBluetooth.h>
+
 @implementation RNBluetoothManager
 
 NSString *EVENT_DEVICE_ALREADY_PAIRED = @"EVENT_DEVICE_ALREADY_PAIRED";
@@ -162,7 +163,7 @@ RCT_EXPORT_METHOD(scanDevices:(RCTPromiseResolveBlock)resolve
             [timer invalidate];
             timer = nil;
         }
-        timer = [NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(callStop) userInfo:nil repeats:NO];
+        timer = [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(callStop) userInfo:nil repeats:NO];
         
     }
     @catch(NSException *exception){
@@ -199,6 +200,10 @@ RCT_EXPORT_METHOD(connect:(NSString *)address
             //entralManager:didDisconnectPeripheral:error:
         }
     }
+    
+    if (!self.foundDevices) {
+        self.foundDevices = [[NSMutableDictionary alloc] init];
+    }
     CBPeripheral *peripheral = [self.foundDevices objectForKey:address];
     self.connectResolveBlock = resolve;
     self.connectRejectBlock = reject;
@@ -210,7 +215,13 @@ RCT_EXPORT_METHOD(connect:(NSString *)address
         //    centralManager:didConnectPeripheral:
         //    centralManager:didFailToConnectPeripheral:error:
     }else{
-        
+        NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:address];
+        NSArray *peripherals = [self.centralManager retrievePeripheralsWithIdentifiers:@[uuid]];
+        if (peripherals.count) {
+            _waitingConnect = address;
+            
+            [self.centralManager connectPeripheral:peripherals.firstObject options:nil];
+        }
     }
 }
 
@@ -403,13 +414,13 @@ RCT_EXPORT_METHOD(unpaire:(NSString *)address
         self.connectResolveBlock = nil;
         connected = nil;
     }else
-    if(_waitingConnect && _waitingConnect == peripheral.identifier.UUIDString){
-        RCTPromiseResolveBlock rsBlock = self.connectResolveBlock;
-        rsBlock(peripheral.identifier.UUIDString);
-        self.connectRejectBlock = nil;
-        self.connectResolveBlock = nil;
-        connected = peripheral;
-    }
+        if(_waitingConnect && _waitingConnect == peripheral.identifier.UUIDString){
+            RCTPromiseResolveBlock rsBlock = self.connectResolveBlock;
+            rsBlock(peripheral.identifier.UUIDString);
+            self.connectRejectBlock = nil;
+            self.connectResolveBlock = nil;
+            connected = peripheral;
+        }
 }
 
 /*!
@@ -445,7 +456,8 @@ RCT_EXPORT_METHOD(unpaire:(NSString *)address
                     }
                 }
                 @catch(NSException *e){
-                    NSLog(@"ERRO IN WRITE VALUE: %@",e);
+                    //Quang comment
+                    //                    NSLog(@"ERRO IN WRITE VALUE: %@",e);
                     [writeDataDelegate didWriteDataToBle:false];
                 }
             }

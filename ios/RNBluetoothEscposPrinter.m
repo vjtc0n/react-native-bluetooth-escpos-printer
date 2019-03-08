@@ -483,26 +483,34 @@ RCT_EXPORT_METHOD(printPic:(NSString *) base64encodeStr withOptions:(NSDictionar
             if(!paddingLeft) paddingLeft = 0;
             NSData *decoded = [[NSData alloc] initWithBase64EncodedString:base64encodeStr options:0 ];
             UIImage *srcImage = [[UIImage alloc] initWithData:decoded scale:1];
-            NSData *jpgData = UIImageJPEGRepresentation(srcImage, 1);
-            UIImage *jpgImage = [[UIImage alloc] initWithData:jpgData];
-            //mBitmap.getHeight() * width / mBitmap.getWidth();
-            NSInteger imgHeight = jpgImage.size.height;
-            NSInteger imagWidth = jpgImage.size.width;
-            NSInteger width = nWidth;//((int)(((nWidth*0.86)+7)/8))*8-7;
-            CGSize size = CGSizeMake(width, imgHeight*width/imagWidth);
-            UIImage *scaled = [ImageUtils imageWithImage:jpgImage scaledToFillSize:size];
-            if(paddingLeft>0){
-                scaled = [ImageUtils imagePadLeft:paddingLeft withSource:scaled];
-                size =[scaled size];
-            }
+            //            NSData *jpgData = UIImageJPEGRepresentation(srcImage, 1);
+            //            UIImage *jpgImage = [[UIImage alloc] initWithData:jpgData];
+            //            //mBitmap.getHeight() * width / mBitmap.getWidth();
             
-            unsigned char * graImage = [ImageUtils imageToGreyImage:scaled];
-            unsigned char * formatedData = [ImageUtils format_K_threshold:graImage width:size.width height:size.height];
-            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:formatedData nWidth:size.width nHeight:size.height nMode:0];
+            //            if(paddingLeft>0){
+            //                scaled = [ImageUtils imagePadLeft:paddingLeft withSource:scaled];
+            //                size =[scaled size];
+            //            }
+            //
+            //            unsigned char * graImage = [ImageUtils imageToGreyImage:scaled];
+            //            unsigned char * formatedData = [ImageUtils format_K_threshold:graImage width:size.width height:size.height];
+            //            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:formatedData nWidth:size.width nHeight:size.height nMode:0];
+            UIImage *img = [UIImage imageNamed:@"mobileContact.png"];
+            NSData *jpgData = UIImageJPEGRepresentation(img, 1);
+            UIImage *jpgImage = [[UIImage alloc] initWithData:jpgData];
+            
+            //            NSInteger imgHeight = jpgImage.size.height;
+            //            NSInteger imagWidth = jpgImage.size.width;
+            //            NSInteger width = nWidth;//((int)(((nWidth*0.86)+7)/8))*8-7;
+            //            CGSize size = CGSizeMake(width, imgHeight*width/imagWidth);
+            //            UIImage *scaled = [ImageUtils imageWithImage:jpgImage scaledToFillSize:size];
+            
+            HKPrinterBitmap *bitmap = [[HKPrinterBitmap alloc] initWithUIImage:jpgImage maxWidth:nWidth];
+            NSData *dataToPrint = [bitmap getDataForPrint];
             PrintImageBleWriteDelegate *delegate = [[PrintImageBleWriteDelegate alloc] init];
             delegate.pendingResolve = resolve;
             delegate.pendingReject = reject;
-            delegate.width = width;
+            delegate.width = nWidth;
             delegate.toPrint  = dataToPrint;
             delegate.now = 0;
             [delegate print];

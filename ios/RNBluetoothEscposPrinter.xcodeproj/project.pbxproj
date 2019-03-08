@@ -18,6 +18,7 @@
 		83E5D47F215E5A880009D216 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 83E5D47E215E5A880009D216 /* CoreBluetooth.framework */; };
 		83FAD6B12161C9C6001C4911 /* RNBluetoothTscPrinter.m in Sources */ = {isa = PBXBuildFile; fileRef = 83FAD6B02161C9C6001C4911 /* RNBluetoothTscPrinter.m */; };
 		B3E7B58A1CC2AC0600A0062D /* RNBluetoothEscposPrinter.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNBluetoothEscposPrinter.m */; };
+		C25DD51222322BC8000A8CDF /* HKPrinterBitmap.m in Sources */ = {isa = PBXBuildFile; fileRef = C25DD50222322BC8000A8CDF /* HKPrinterBitmap.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,6 +99,8 @@
 		83FAD6B02161C9C6001C4911 /* RNBluetoothTscPrinter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNBluetoothTscPrinter.m; sourceTree = "<group>"; };
 		B3E7B5881CC2AC0600A0062D /* RNBluetoothEscposPrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNBluetoothEscposPrinter.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RNBluetoothEscposPrinter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNBluetoothEscposPrinter.m; sourceTree = "<group>"; };
+		C25DD4F522322BC8000A8CDF /* HKPrinterBitmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HKPrinterBitmap.h; sourceTree = "<group>"; };
+		C25DD50222322BC8000A8CDF /* HKPrinterBitmap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HKPrinterBitmap.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +128,7 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				C25DD4ED22322BC8000A8CDF /* printer */,
 				83A1E925216CF6C3004F0811 /* RNTscCommand.h */,
 				83A1E92C216CF6C3004F0811 /* RNTscCommand.m */,
 				83A1E918216BA094004F0811 /* PrintImageBleWriteDelegate.h */,
@@ -167,6 +171,15 @@
 				83E5D47E215E5A880009D216 /* CoreBluetooth.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C25DD4ED22322BC8000A8CDF /* printer */ = {
+			isa = PBXGroup;
+			children = (
+				C25DD4F522322BC8000A8CDF /* HKPrinterBitmap.h */,
+				C25DD50222322BC8000A8CDF /* HKPrinterBitmap.m */,
+			);
+			path = printer;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -278,6 +291,7 @@
 			files = (
 				83B72B45216A0FEA007780F3 /* PrintColumnBleWriteDelegate.m in Sources */,
 				B3E7B58A1CC2AC0600A0062D /* RNBluetoothEscposPrinter.m in Sources */,
+				C25DD51222322BC8000A8CDF /* HKPrinterBitmap.m in Sources */,
 				83A1E92D216CF6C4004F0811 /* RNTscCommand.m in Sources */,
 				83B72B46216A0FEA007780F3 /* ColumnSplitedString.m in Sources */,
 				83B72B7C216A70D2007780F3 /* ImageUtils.m in Sources */,
@@ -388,6 +402,10 @@
 		58B511F01A9E6C8500147676 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/printer",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -404,6 +422,10 @@
 		58B511F11A9E6C8500147676 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/printer",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
