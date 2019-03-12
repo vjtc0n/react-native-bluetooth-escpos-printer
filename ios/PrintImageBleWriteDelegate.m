@@ -48,7 +48,7 @@
 //            sizePerLine = [_toPrint length] - _now;
 //        }
        // if(sizePerLine>0){
-            NSData *subData = [_toPrint subdataWithRange:NSMakeRange(_now, sizePerLine)];
+        NSData *subData = [_toPrint subdataWithRange:NSMakeRange(_now, (_now + sizePerLine) > _toPrint.length ? (_toPrint.length - _now) : sizePerLine)];
             NSLog(@"Write data:%@",subData);
             [RNBluetoothManager writeValue:subData withDelegate:self];
         //}

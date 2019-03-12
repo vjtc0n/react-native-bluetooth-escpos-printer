@@ -15,6 +15,15 @@
 
 @implementation HKPrinterBitmap
 
+- (id)initWithUIImage:(UIImage *)image{
+    self = [super init];
+    if (self) {
+        m_image = image;
+        imageData = nil;
+    }
+    return self;
+}
+
 - (id)initWithUIImage:(UIImage *)image maxWidth:(int)maxWidth{
     self = [super init];
     if (self) {
@@ -46,7 +55,7 @@
         for (int w = 0; w < width; w++) {
             int pIndex = [self PixelIndexWithX:w y:h width:width];
             ARGBPixel pixel = pixels[pIndex];
-            if ([self PixelBrightnessWithRed:pixel.red green:pixel.green blue:pixel.blue] <= 127) {
+            if ([self PixelBrightnessWithRed:pixel.red green:pixel.green blue:pixel.blue] <= 210) {
                 u_int8_t ch = 0x01;
                 [data appendBytes:&ch length:1];
             }

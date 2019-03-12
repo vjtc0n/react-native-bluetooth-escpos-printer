@@ -1,5 +1,6 @@
 
 #import <React/RCTBridgeModule.h>
+#import <React/RCTConvert.h>
 #import "RNBluetoothManager.h";
 
 @interface RNBluetoothEscposPrinter : NSObject <RCTBridgeModule,WriteDataToBleDelegate>

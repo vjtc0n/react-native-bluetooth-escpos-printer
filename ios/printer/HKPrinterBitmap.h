@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 typedef struct ARGBPixel
 {
@@ -28,6 +29,7 @@ typedef struct ARGBPixel
 	NSData *imageData;
 }
 
+- (id)initWithUIImage:(UIImage *)image;
 - (id)initWithUIImage:(UIImage *)image maxWidth:(int)maxWidth;
 -(NSData*)getDataForPrint;
 

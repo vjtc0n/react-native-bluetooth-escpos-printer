@@ -205,26 +205,26 @@ RCT_EXPORT_METHOD(connect:(NSString *)address
         self.foundDevices = [[NSMutableDictionary alloc] init];
     }
     CBPeripheral *peripheral = [self.foundDevices objectForKey:address];
+    BOOL hasDeviceConnected = false;
+    if (!peripheral) {
+        NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:address];
+        NSArray *peripherals = [self.centralManager retrievePeripheralsWithIdentifiers:@[uuid]];
+        peripheral = peripherals.firstObject;
+        [self.foundDevices addEntriesFromDictionary:@{address: peripheral}];
+        hasDeviceConnected = true;
+    }
     self.connectResolveBlock = resolve;
     self.connectRejectBlock = reject;
     if(peripheral){
         _waitingConnect = address;
         NSLog(@"Trying to connectPeripheral....%@",address);
-        [self.centralManager connectPeripheral:peripheral options:nil];
-        // Callbacks:
-        //    centralManager:didConnectPeripheral:
-        //    centralManager:didFailToConnectPeripheral:error:
-    }else{
-        NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:address];
-        NSArray *peripherals = [self.centralManager retrievePeripheralsWithIdentifiers:@[uuid]];
-        if (peripherals.count) {
-            _waitingConnect = address;
-            
-            [self.centralManager connectPeripheral:peripherals.firstObject options:nil];
-        }
+        [self performSelector:@selector(connectToDevice:) withObject:peripheral afterDelay:hasDeviceConnected ? 0.5 : 0];
     }
 }
 
+- (void)connectToDevice:(CBPeripheral*)peripheral{
+    [self.centralManager connectPeripheral:peripheral options:nil];
+}
 
 //unpaire(address)
 RCT_EXPORT_METHOD(unpaire:(NSString *)address

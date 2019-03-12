@@ -8,6 +8,8 @@
 #import "ImageUtils.h"
 #import "ZXingObjC/ZXingObjC.h"
 #import "PrintImageBleWriteDelegate.h"
+#import "HKPrinterBitmap.h"
+
 @implementation RNBluetoothEscposPrinter
 
 int WIDTH_58 = 384;
@@ -470,7 +472,7 @@ RCT_EXPORT_METHOD(setBlob:(NSInteger) sp
     [RNBluetoothManager writeValue:toSend withDelegate:self];
 }
 
-RCT_EXPORT_METHOD(printPic:(NSString *) base64encodeStr withOptions:(NSDictionary *) options
+RCT_EXPORT_METHOD(printPic:(NSDictionary *) imageObj withOptions:(NSDictionary *) options
                   resolver:(RCTPromiseResolveBlock) resolve
                   rejecter:(RCTPromiseRejectBlock) reject)
 {
@@ -478,39 +480,32 @@ RCT_EXPORT_METHOD(printPic:(NSString *) base64encodeStr withOptions:(NSDictionar
         @try{
             NSInteger nWidth = [[options valueForKey:@"width"] integerValue];
             if(!nWidth) nWidth = _deviceWidth;
-            //TODO:need to handel param "left" in the options.
             NSInteger paddingLeft = [[options valueForKey:@"left"] integerValue];
             if(!paddingLeft) paddingLeft = 0;
-            NSData *decoded = [[NSData alloc] initWithBase64EncodedString:base64encodeStr options:0 ];
-            UIImage *srcImage = [[UIImage alloc] initWithData:decoded scale:1];
-            //            NSData *jpgData = UIImageJPEGRepresentation(srcImage, 1);
-            //            UIImage *jpgImage = [[UIImage alloc] initWithData:jpgData];
-            //            //mBitmap.getHeight() * width / mBitmap.getWidth();
             
-            //            if(paddingLeft>0){
-            //                scaled = [ImageUtils imagePadLeft:paddingLeft withSource:scaled];
-            //                size =[scaled size];
-            //            }
-            //
-            //            unsigned char * graImage = [ImageUtils imageToGreyImage:scaled];
-            //            unsigned char * formatedData = [ImageUtils format_K_threshold:graImage width:size.width height:size.height];
-            //            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:formatedData nWidth:size.width nHeight:size.height nMode:0];
-            UIImage *img = [UIImage imageNamed:@"mobileContact.png"];
-            NSData *jpgData = UIImageJPEGRepresentation(img, 1);
-            UIImage *jpgImage = [[UIImage alloc] initWithData:jpgData];
+            UIImage *src = [RCTConvert UIImage:imageObj];
             
-            //            NSInteger imgHeight = jpgImage.size.height;
-            //            NSInteger imagWidth = jpgImage.size.width;
-            //            NSInteger width = nWidth;//((int)(((nWidth*0.86)+7)/8))*8-7;
-            //            CGSize size = CGSizeMake(width, imgHeight*width/imagWidth);
-            //            UIImage *scaled = [ImageUtils imageWithImage:jpgImage scaledToFillSize:size];
+            NSInteger imgHeight = src.size.height;
+            NSInteger imagWidth = src.size.width;
+            NSInteger maxWidth = imagWidth > nWidth ? nWidth : imagWidth;
+            CGSize size = CGSizeMake(maxWidth, imgHeight*maxWidth/imagWidth);
+            UIImage *scaled = src;
+//            if (imagWidth < nWidth) {
+//                size = CGSizeMake(nWidth, imgHeight*nWidth/imagWidth);
+//                scaled = [ImageUtils imageWithImage:src scaledToFillSize:size];
+//            }
+            if(paddingLeft>0){
+                scaled = [ImageUtils imagePadLeft:paddingLeft withSource:scaled];
+                size =[scaled size];
+            }
             
-            HKPrinterBitmap *bitmap = [[HKPrinterBitmap alloc] initWithUIImage:jpgImage maxWidth:nWidth];
+            HKPrinterBitmap *bitmap = [[HKPrinterBitmap alloc] initWithUIImage:scaled maxWidth:maxWidth];
             NSData *dataToPrint = [bitmap getDataForPrint];
+            
             PrintImageBleWriteDelegate *delegate = [[PrintImageBleWriteDelegate alloc] init];
             delegate.pendingResolve = resolve;
             delegate.pendingReject = reject;
-            delegate.width = nWidth;
+            delegate.width = maxWidth;
             delegate.toPrint  = dataToPrint;
             delegate.now = 0;
             [delegate print];
