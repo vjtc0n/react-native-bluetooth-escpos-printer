@@ -4,7 +4,10 @@ package cn.jystudio.bluetooth.escpos;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
+import java.io.ByteArrayOutputStream;
 import android.util.Log;
+import android.webkit.URLUtil;
+
 import cn.jystudio.bluetooth.BluetoothService;
 import cn.jystudio.bluetooth.BluetoothServiceStateObserver;
 import cn.jystudio.bluetooth.escpos.command.sdk.Command;
@@ -18,7 +21,10 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import javax.annotation.Nullable;
-import java.nio.charset.Charset;
+
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
 
 public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
@@ -316,38 +322,74 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
-    public void printPic(String base64encodeStr, @Nullable  ReadableMap options) {
-        int width = 0;
-        int leftPadding = 0;
-        if(options!=null){
-            width = options.hasKey("width") ? options.getInt("width") : 0;
-            leftPadding = options.hasKey("left")?options.getInt("left") : 0;
-        }
+    public void printPic(String name, @Nullable  ReadableMap options, final Promise promise) {
+        HttpURLConnection connection = null;
+        try {
+            Bitmap bm = null;
 
-        //cannot larger then devicesWith;
-        if(width > deviceWidth || width == 0){
-            width = deviceWidth;
-        }
+            if (URLUtil.isValidUrl(name)) {
+                URL ulrn = new URL(name);
+                HttpURLConnection con = (HttpURLConnection)ulrn.openConnection();
+                connection = con;
+                try {
 
-        byte[] bytes = Base64.decode(base64encodeStr, Base64.DEFAULT);
-        Bitmap mBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        int nMode = 0;
-        if (mBitmap != null) {
-            /**
-             * Parameters:
-             * mBitmap  要打印的图片
-             * nWidth   打印宽度（58和80）
-             * nMode    打印模式
-             * Returns: byte[]
-             */
-            byte[] data = PrintPicture.POS_PrintBMP(mBitmap, width, nMode, leftPadding);
-            //	SendDataByte(buffer);
-            sendDataByte(Command.ESC_Init);
-            sendDataByte(Command.LF);
-            sendDataByte(data);
-            sendDataByte(PrinterCommand.POS_Set_PrtAndFeedPaper(30));
-            sendDataByte(PrinterCommand.POS_Set_Cut(1));
-            sendDataByte(PrinterCommand.POS_Set_PrtInit());
+                    InputStream is = con.getInputStream();
+                    Bitmap bmp = BitmapFactory.decodeStream(is);
+                    bm = bmp;
+                } catch (Exception e) {
+                    promise.reject(e.getMessage(),e);
+                }
+            } else {
+                int id =  getReactApplicationContext().getResources().getIdentifier(name, "drawable", getReactApplicationContext().getPackageName());
+                Bitmap bmp = BitmapFactory.decodeResource(getReactApplicationContext().getResources(), id);
+                bm = bmp;
+            }
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+            byte[] byteArrayImage = baos.toByteArray();
+            String base64encodeStr = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+
+            int width = 0;
+            int leftPadding = 0;
+            if(options!=null){
+                width = options.hasKey("width") ? options.getInt("width") : 0;
+                leftPadding = options.hasKey("left")?options.getInt("left") : 0;
+            }
+
+            //cannot larger then devicesWith;
+            if(width > deviceWidth || width == 0){
+                width = deviceWidth;
+            }
+
+            byte[] bytes = Base64.decode(base64encodeStr, Base64.DEFAULT);
+            Bitmap mBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            int nMode = 0;
+            if (mBitmap != null) {
+                /**
+                * Parameters:
+                * mBitmap  要打印的图片
+                * nWidth   打印宽度（58和80）
+                * nMode    打印模式
+                * Returns: byte[]
+                */
+                byte[] data = PrintPicture.POS_PrintBMP(mBitmap, width, nMode, leftPadding);
+                //	SendDataByte(buffer);
+                sendDataByte(Command.ESC_Init);
+                sendDataByte(Command.LF);
+                sendDataByte(data);
+                sendDataByte(PrinterCommand.POS_Set_PrtAndFeedPaper(30));
+                sendDataByte(PrinterCommand.POS_Set_Cut(1));
+                sendDataByte(PrinterCommand.POS_Set_PrtInit());
+            }
+        } catch (Exception e) {
+            promise.reject(e.getMessage(),e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+
+            promise.resolve(null);
         }
     }
 
