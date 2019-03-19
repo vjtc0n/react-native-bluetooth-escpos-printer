@@ -24,24 +24,36 @@
     return self;
 }
 
+//- (id)initWithUIImage:(UIImage *)image maxWidth:(int)maxWidth{
+//    self = [super init];
+//    if (self) {
+//        int32_t width = image.size.width; //CGImageGetWidth([image CGImage]);
+//        int32_t height = image.size.height; //CGImageGetHeight([image CGImage]);
+//        int32_t h2 = 0;
+//        if (width > maxWidth){
+//            h2 = (int)(((double)height * (float)maxWidth)/(double)width); //SCALLING IMAGE DOWN TO FIT ON PAPER IF TOO BIG
+//            m_image = [self ScaleImageWithImage:image width:maxWidth height:h2];
+//        }
+//        else {
+//            m_image = image;
+//        }
+//        imageData = nil;
+//    }
+//    return self;
+//}
+
 - (id)initWithUIImage:(UIImage *)image maxWidth:(int)maxWidth{
     self = [super init];
     if (self) {
         int32_t width = image.size.width; //CGImageGetWidth([image CGImage]);
         int32_t height = image.size.height; //CGImageGetHeight([image CGImage]);
         int32_t h2 = 0;
-        if (width > maxWidth){
-            h2 = (int)(((double)height * (float)maxWidth)/(double)width); //SCALLING IMAGE DOWN TO FIT ON PAPER IF TOO BIG
-            m_image = [self ScaleImageWithImage:image width:maxWidth height:h2];
-        }
-        else {
-            m_image = image;
-        }
+        h2 = (int)(((double)height * (float)maxWidth)/(double)width); //SCALLING IMAGE DOWN TO FIT ON PAPER IF TOO BIG
+        m_image = [self ScaleImageWithImage:image width:maxWidth height:h2];
         imageData = nil;
     }
-	return self;
+    return self;
 }
-
 
 -(HKBitmapImage*)getBitmapImageData{
     CGImageRef cgImage = [m_image CGImage];

@@ -487,7 +487,7 @@ RCT_EXPORT_METHOD(printPic:(NSDictionary *) imageObj withOptions:(NSDictionary *
             
             NSInteger imgHeight = src.size.height;
             NSInteger imagWidth = src.size.width;
-            NSInteger maxWidth = imagWidth > nWidth ? nWidth : imagWidth;
+            NSInteger maxWidth = nWidth;
             CGSize size = CGSizeMake(maxWidth, imgHeight*maxWidth/imagWidth);
             UIImage *scaled = src;
 //            if (imagWidth < nWidth) {
