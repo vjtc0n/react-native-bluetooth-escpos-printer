@@ -118,6 +118,21 @@ RCT_EXPORT_METHOD(isBluetoothEnabled:(RCTPromiseResolveBlock)resolve
     resolve(state == CBManagerStatePoweredOn?@"true":@"false");//canot pass boolean or int value to resolve directly.
 }
 
+RCT_EXPORT_METHOD(startObserving:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [self startObserving];
+    resolve(nil);
+}
+
+RCT_EXPORT_METHOD(stopObserving:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [self stopObserving];
+    resolve(nil);
+}
+
+
 //enableBluetooth
 RCT_EXPORT_METHOD(enableBluetooth:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
