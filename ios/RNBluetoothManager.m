@@ -219,21 +219,30 @@ RCT_EXPORT_METHOD(connect:(NSString *)address
     if (!self.foundDevices) {
         self.foundDevices = [[NSMutableDictionary alloc] init];
     }
+    
     CBPeripheral *peripheral = [self.foundDevices objectForKey:address];
+    
+    
     BOOL hasDeviceConnected = false;
     if (!peripheral) {
         NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:address];
         NSArray *peripherals = [self.centralManager retrievePeripheralsWithIdentifiers:@[uuid]];
-        peripheral = peripherals.firstObject;
-        [self.foundDevices addEntriesFromDictionary:@{address: peripheral}];
-        hasDeviceConnected = true;
+        
+        if ([peripherals count] > 0) {
+            peripheral = peripherals.firstObject;
+            [self.foundDevices addEntriesFromDictionary:@{address: peripheral}];
+            hasDeviceConnected = true;
+        }
     }
-    self.connectResolveBlock = resolve;
-    self.connectRejectBlock = reject;
+    
     if(peripheral){
+        self.connectResolveBlock = resolve;
+        self.connectRejectBlock = reject;
         _waitingConnect = address;
         NSLog(@"Trying to connectPeripheral....%@",address);
         [self performSelector:@selector(connectToDevice:) withObject:peripheral afterDelay:hasDeviceConnected ? 0.5 : 0];
+    } else {
+        reject(@"UNKNOWN_DEVICE",@"UNKNOWN_DEVICE",nil);
     }
 }
 
