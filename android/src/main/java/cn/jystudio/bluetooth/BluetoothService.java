@@ -341,11 +341,13 @@ public class BluetoothService {
         }
 
         public void cancel() {
-            try {
-                mmSocket.close();
-                connectionLost();
-            } catch (IOException e) {
-                Log.e(TAG, "close() of connect socket failed", e);
+            if (mmSocket != null) {
+                try {
+                    mmSocket.close();
+                    connectionLost();
+                } catch (Exception e) {
+                    Log.e(TAG, "close() of connect socket failed", e);
+                }
             }
         }
     }
